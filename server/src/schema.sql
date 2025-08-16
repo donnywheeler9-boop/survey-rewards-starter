@@ -1,34 +1,35 @@
-create table if not exists users (
-  id serial primary key,
-  email text unique not null,
-  password_hash text not null,
-  name text,
-  role text default 'user',
-  points integer default 0,
-  created_at timestamptz default now()
+-- Users Table
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    points INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT NOW()
 );
-create table if not exists surveys (
-  id serial primary key,
-  title text not null,
-  description text,
-  reward integer not null default 10,
-  is_active boolean default true,
-  created_at timestamptz default now()
+
+-- Surveys Table
+CREATE TABLE IF NOT EXISTS surveys (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    points INT DEFAULT 10,
+    created_at TIMESTAMP DEFAULT NOW()
 );
-create table if not exists user_surveys (
-  id serial primary key,
-  user_id integer references users(id) on delete cascade,
-  survey_id integer references surveys(id) on delete cascade,
-  status text default 'assigned',
-  created_at timestamptz default now()
+
+-- User-Surveys Table (track completions)
+CREATE TABLE IF NOT EXISTS user_surveys (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    survey_id INT REFERENCES surveys(id) ON DELETE CASCADE,
+    completed_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(user_id, survey_id)
 );
-create table if not exists withdrawals (
-  id serial primary key,
-  user_id integer references users(id) on delete cascade,
-  amount integer not null,
-  status text default 'pending',
-  created_at timestamptz default now()
+
+-- Withdraws Table
+CREATE TABLE IF NOT EXISTS withdraws (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE,
+    amount INT NOT NULL,
+    requested_at TIMESTAMP DEFAULT NOW()
 );
-insert into surveys (title, description, reward, is_active) values
-('Customer Satisfaction Survey','Tell us about your recent purchase',20,true),
-('App Feedback Survey','Help us improve app UX',15,true) on conflict do nothing;
