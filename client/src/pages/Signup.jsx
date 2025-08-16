@@ -1,29 +1,60 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
 import api from '../api'
-import { useNavigate } from 'react-router-dom'
 
 export default function Signup() {
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const navigate = useNavigate()
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const res = await api.post('/auth/signup', { email, password })
+      const res = await api.post('/auth/signup', { name, email, password })
       localStorage.setItem('token', res.data.token)
-      navigate('/dashboard')
+      alert('Signup successful')
     } catch (err) {
-      alert(err.response?.data?.message || 'Signup failed')
+      alert('Signup failed')
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-10 p-6 border rounded">
-      <h2 className="text-xl font-bold mb-4">Sign Up</h2>
-      <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="block w-full mb-2 p-2 border rounded" />
-      <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="block w-full mb-2 p-2 border rounded" />
-      <button type="submit" className="w-full p-2 bg-blue-600 text-white rounded">Sign Up</button>
-    </form>
+    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white px-4">
+      <div className="w-full max-w-md bg-gray-800 p-8 rounded-2xl shadow-xl transform transition-all hover:scale-105 duration-300">
+        <h1 className="text-3xl font-bold mb-6 text-center">Sign Up</h1>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Full Name"
+            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full font-semibold shadow-lg hover:scale-105 transition-transform duration-300">
+            Sign Up
+          </button>
+        </form>
+        <p className="mt-4 text-gray-400 text-sm text-center">
+          Already have an account?{' '}
+          <Link to="/login" className="text-purple-400 hover:text-purple-500 font-semibold transition-colors duration-300">
+            Login
+          </Link>
+        </p>
+      </div>
+    </div>
   )
 }

@@ -2,28 +2,27 @@ import React, { useEffect, useState } from 'react'
 import api from '../api'
 
 export default function Dashboard() {
-  const [surveys, setSurveys] = useState([])
+  const [points, setPoints] = useState(0)
 
   useEffect(() => {
-    const fetchSurveys = async () => {
+    async function fetchPoints() {
       try {
-        const res = await api.get('/surveys')
-        setSurveys(res.data)
+        const res = await api.get('/user/points')
+        setPoints(res.data.points)
       } catch (err) {
         console.error(err)
       }
     }
-    fetchSurveys()
+    fetchPoints()
   }, [])
 
   return (
-    <div className="max-w-4xl mx-auto mt-10">
-      <h2 className="text-2xl font-bold mb-4">Surveys</h2>
-      <ul className="space-y-2">
-        {surveys.map(s => (
-          <li key={s.id} className="p-4 border rounded">{s.title}</li>
-        ))}
-      </ul>
+    <div className="min-h-screen bg-gray-900 text-white px-6 py-10">
+      <h1 className="text-4xl font-bold mb-6">Dashboard</h1>
+      <div className="bg-gray-800 p-6 rounded-2xl shadow-lg max-w-md transform transition-all hover:scale-105 duration-300">
+        <p className="text-lg">Your Points Balance:</p>
+        <p className="text-3xl font-extrabold mt-2 text-purple-400">{points}</p>
+      </div>
     </div>
   )
 }
