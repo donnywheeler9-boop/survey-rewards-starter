@@ -1,24 +1,44 @@
 import React, { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
 import api from '../api'
+import { useNavigate } from 'react-router-dom'
+
 export default function Login() {
-  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [err, setErr] = useState('')
-  const onSubmit = async (e) => {
-    e.preventDefault(); setErr('')
-    try { const { data } = await api.post('/auth/login', { email, password }); localStorage.setItem('token', data.token); navigate('/dashboard') }
-    catch (e) { setErr(e.response?.data?.message || 'Login failed') }
+  const navigate = useNavigate()
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await api.post('/auth/login', { email, password })
+      localStorage.setItem('token', res.data.token)
+      navigate('/dashboard')
+    } catch (err) {
+      console.error(err)
+      alert('Login failed')
+    }
   }
-  return (<div className="max-w-md mx-auto p-6 mt-10 bg-white rounded-2xl shadow">
-    <h2 className="text-2xl font-semibold mb-4">Login</h2>
-    <form onSubmit={onSubmit} className="space-y-4">
-      <input className="w-full border p-2 rounded" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
-      <input className="w-full border p-2 rounded" type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} />
-      {err && <p className="text-red-600 text-sm">{err}</p>}
-      <button className="w-full bg-gray-900 text-white py-2 rounded">Sign In</button>
-    </form>
-    <p className="text-sm mt-3">No account? <Link className="underline" to="/signup">Sign up</Link></p>
-  </div>)
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <form onSubmit={handleSubmit} className="p-4 bg-white rounded shadow w-80">
+        <h2 className="text-xl font-bold mb-4">Login</h2>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          className="border p-2 w-full mb-2"
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          className="border p-2 w-full mb-2"
+        />
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded w-full">Login</button>
+      </form>
+    </div>
+  )
 }
