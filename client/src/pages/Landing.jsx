@@ -2,15 +2,17 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import FadeInSection from '../components/FadeInSection'
-import Footer from '../components/Footer' // <-- import Footer
 
 export default function Landing() {
   return (
     <div className="relative min-h-screen bg-gray-900 text-gray-100">
       {/* Hero Section */}
       <section
-        className="relative h-screen bg-cover bg-center hero-bg flex items-center"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1576267423445-b2e0074d68a4?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')" }}
+        className="relative min-h-screen bg-cover bg-center flex items-center pt-20 md:pt-24" // extra top padding on md+
+        style={{
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1576267423445-b2e0074d68a4?q=80&w=1920&auto=format&fit=crop')"
+        }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-black/30"></div>
 
@@ -53,31 +55,29 @@ export default function Landing() {
           {/* Right Content - Features */}
           <div className="flex-1 grid md:grid-cols-1 gap-6 mt-10 md:mt-0">
             <FadeInSection delay={0.2}>
-              <div className="bg-white/20 backdrop-blur-lg p-6 rounded-3xl shadow-lg text-white font-medium">
+              <div className="bg-white/20 backdrop-blur-lg p-6 rounded-3xl shadow-lg text-white font-medium text-base md:text-lg">
                 • Secure authentication (JWT)
               </div>
             </FadeInSection>
             <FadeInSection delay={0.4}>
-              <div className="bg-white/20 backdrop-blur-lg p-6 rounded-3xl shadow-lg text-white font-medium">
+              <div className="bg-white/20 backdrop-blur-lg p-6 rounded-3xl shadow-lg text-white font-medium text-base md:text-lg">
                 • Real-time points balance
               </div>
             </FadeInSection>
             <FadeInSection delay={0.6}>
-              <div className="bg-white/20 backdrop-blur-lg p-6 rounded-3xl shadow-lg text-white font-medium">
+              <div className="bg-white/20 backdrop-blur-lg p-6 rounded-3xl shadow-lg text-white font-medium text-base md:text-lg">
                 • Simple withdraw requests
               </div>
             </FadeInSection>
             <FadeInSection delay={0.8}>
-              <div className="bg-white/20 backdrop-blur-lg p-6 rounded-3xl shadow-lg text-white font-medium">
+              <div className="bg-white/20 backdrop-blur-lg p-6 rounded-3xl shadow-lg text-white font-medium text-base md:text-lg">
                 • Neon/Postgres backend API
               </div>
             </FadeInSection>
           </div>
         </div>
       </section>
-
-      {/* Footer Integration */}
-      <Footer />
+      {/* Footer এখানে রাখবেন না—App.jsx-এ একটাই Footer থাকবে */}
     </div>
   )
 }
