@@ -11,7 +11,7 @@ export const signup = async (req, res) => {
       return res.status(400).json({ error: 'Missing name, email or password' })
     }
 
-    // Check if the email already exists
+    // Check if email exists
     const existingUser = await pool.query('SELECT 1 FROM users WHERE email=$1', [email])
     if (existingUser.rows.length > 0) {
       return res.status(409).json({ error: 'Email already in use' })
@@ -49,6 +49,18 @@ export const login = async (req, res) => {
     const match = await bcrypt.compare(password, user.password)
     if (!match) {
       return res.status(401).json({ error: 'Invalid credentials' })
+    }
+
+    // capture client IP (works behind proxy too)
+    const ip =
+      (req.headers['x-forwarded-for']?.toString().split(',')[0] || '').trim() ||
+      req.ip
+
+    // save last seen IP (column: ip_address)
+    try {
+      await pool.query('UPDATE users SET ip_address=$1 WHERE id=$2', [ip, user.id])
+    } catch (e) {
+      console.warn('Could not save ip_address:', e?.message)
     }
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1d' })
