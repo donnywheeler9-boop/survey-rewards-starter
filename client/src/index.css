@@ -5,3 +5,12 @@
 body {
   @apply bg-gray-900 text-gray-100;
 }
+
+
+
+/* Sticky Points Balance box */
+.points-balance {
+  position: sticky;
+  top: 20px;
+  z-index: 10;
+}

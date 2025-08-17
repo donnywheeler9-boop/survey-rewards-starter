@@ -1,8 +1,8 @@
+// client/src/App.jsx
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 import Navbar from './components/Navbar'
-import Footer from './components/Footer'
 import ProtectedRoute from './components/ProtectedRoute'
 import AppShell from './layouts/AppShell'
 
@@ -18,14 +18,13 @@ function App() {
   return (
     <Router>
       <Navbar />
-
       <Routes>
         {/* Public */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* Protected layout + nested pages (Sidebar + Main content) */}
+        {/* Protected with sidebar + footer inside AppShell */}
         <Route
           element={
             <ProtectedRoute>
@@ -34,13 +33,12 @@ function App() {
           }
         >
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile"   element={<Profile />} />
-          <Route path="/surveys"   element={<Surveys />} />
-          <Route path="/withdraw"  element={<Withdraw />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/surveys" element={<Surveys />} />
+          <Route path="/withdraw" element={<Withdraw />} />
         </Route>
       </Routes>
-
-      <Footer />
+      {/* ⛔ এখানে আর <Footer /> রাখবেন না */}
     </Router>
   )
 }
