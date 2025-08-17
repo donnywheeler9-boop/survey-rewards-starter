@@ -1,48 +1,45 @@
-// client/src/App.jsx
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ProtectedRoute from './components/ProtectedRoute'
+import AppShell from './layouts/AppShell'
 
 import LandingPage from './pages/Landing'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Withdraw from './pages/Withdraw'
+import Profile from './pages/Profile'
+import Surveys from './pages/Surveys'
 
 function App() {
   return (
     <Router>
       <Navbar />
-      {/* fixed navbar যেন কনটেন্ট ঢেকে না ফেলে */}
-      <div className="pt-20">
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
 
-          {/* Protected routes (children-based ProtectedRoute) */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/withdraw"
-            element={
-              <ProtectedRoute>
-                <Withdraw />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </div>
+      <Routes>
+        {/* Public */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+
+        {/* Protected layout + nested pages (Sidebar + Main content) */}
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppShell />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile"   element={<Profile />} />
+          <Route path="/surveys"   element={<Surveys />} />
+          <Route path="/withdraw"  element={<Withdraw />} />
+        </Route>
+      </Routes>
+
       <Footer />
     </Router>
   )

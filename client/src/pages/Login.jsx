@@ -1,52 +1,80 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import api from '../api'
 
 export default function Login() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleSubmit = async (e) => {
+  // logged-in হলে এই পেজে আসলে সরাসরি dashboard
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [navigate])
+
+  async function handleSubmit(e) {
     e.preventDefault()
+    setError('')
+    setLoading(true)
     try {
-      const res = await api.post('/auth/login', { email, password })
-      localStorage.setItem('token', res.data.token)
-      alert('Login successful')
+      const { data } = await api.post('/auth/login', { email, password })
+      if (!data?.token) throw new Error('No token returned')
+      localStorage.setItem('token', data.token)
+      window.dispatchEvent(new Event('auth-changed'))   // ⬅️ Navbar refresh
+      navigate('/dashboard', { replace: true })         // ⬅️ redirect
     } catch (err) {
-      alert('Login failed')
+      console.error(err)
+      setError(err?.response?.data?.error || 'Login failed')
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white px-4">
-      <div className="w-full max-w-md bg-gray-800 p-8 rounded-2xl shadow-xl transform transition-all hover:scale-105 duration-300">
-        <h1 className="text-3xl font-bold mb-6 text-center">Login</h1>
-        <form className="space-y-4" onSubmit={handleSubmit}>
+    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center px-6">
+      <form onSubmit={handleSubmit} className="w-full max-w-md bg-gray-800 p-6 rounded-2xl space-y-4">
+        <h1 className="text-2xl font-bold">Login</h1>
+        {error && <p className="text-sm text-red-400">{error}</p>}
+
+        <div>
+          <label className="block text-sm mb-1">Email</label>
           <input
             type="email"
-            placeholder="Email"
-            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300"
+            className="w-full px-4 py-2 rounded bg-gray-700 focus:outline-none"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
+            required
           />
+        </div>
+
+        <div>
+          <label className="block text-sm mb-1">Password</label>
           <input
             type="password"
-            placeholder="Password"
-            className="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-300"
+            className="w-full px-4 py-2 rounded bg-gray-700 focus:outline-none"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
+            required
           />
-          <button className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full font-semibold shadow-lg hover:scale-105 transition-transform duration-300">
-            Login
-          </button>
-        </form>
-        <p className="mt-4 text-gray-400 text-sm text-center">
-          Don't have an account?{' '}
-          <Link to="/signup" className="text-purple-400 hover:text-purple-500 font-semibold transition-colors duration-300">
-            Sign Up
-          </Link>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition disabled:opacity-60"
+        >
+          {loading ? 'Signing in…' : 'Login'}
+        </button>
+
+        <p className="text-sm text-gray-400">
+          No account?{' '}
+          <Link to="/signup" className="text-purple-300 underline">Create one</Link>
         </p>
-      </div>
+      </form>
     </div>
   )
 }
