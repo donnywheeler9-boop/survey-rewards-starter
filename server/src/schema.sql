@@ -33,3 +33,12 @@ CREATE TABLE IF NOT EXISTS withdraws (
     amount INT NOT NULL,
     requested_at TIMESTAMP DEFAULT NOW()
 );
+-- Track which surveys a user has completed
+CREATE TABLE IF NOT EXISTS user_surveys (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  survey_id INTEGER NOT NULL REFERENCES surveys(id) ON DELETE CASCADE,
+  completed_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE (user_id, survey_id)
+);
+

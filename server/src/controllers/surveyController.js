@@ -1,44 +1,77 @@
-import pool from "../config/db.js";
+import { pool } from '../config/db.js'
 
-// Fetch all surveys
-export const getSurveys = async (req, res) => {
+// GET /api/surveys  (protected)
+// return active surveys + { points, completed }
+export async function listSurveys(req, res, next) {
   try {
-    const result = await pool.query("SELECT * FROM surveys");
-    res.json(result.rows);
+    const userId = req.user?.id
+    const { rows } = await pool.query(
+      `
+      SELECT s.id,
+             s.title,
+             s.description,
+             s.reward AS points,
+             s.is_active,
+             CASE WHEN us.user_id IS NULL THEN FALSE ELSE TRUE END AS completed
+      FROM surveys s
+      LEFT JOIN user_surveys us
+        ON us.survey_id = s.id AND us.user_id = $1
+      WHERE s.is_active = TRUE
+      ORDER BY s.id ASC
+      `,
+      [userId]
+    )
+    res.json(rows)
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch surveys" });
+    next(err)
   }
-};
+}
 
-// Complete a survey and add points to user
-export const completeSurvey = async (req, res) => {
-  const surveyId = req.params.id;
-  const userId = req.body.userId; // In real app, get from JWT
-
+// POST /api/surveys/:id/complete  (protected)
+export async function completeSurvey(req, res, next) {
+  const client = await pool.connect()
   try {
-    // Check if already completed
-    const check = await pool.query(
-      "SELECT * FROM user_surveys WHERE user_id=$1 AND survey_id=$2",
+    const userId = req.user?.id
+    const surveyId = Number(req.params.id)
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' })
+    if (!Number.isFinite(surveyId)) return res.status(400).json({ error: 'Invalid survey id' })
+
+    await client.query('BEGIN')
+
+    // Already completed?
+    const done = await client.query(
+      'SELECT 1 FROM user_surveys WHERE user_id=$1 AND survey_id=$2',
       [userId, surveyId]
-    );
-    if (check.rows.length)
-      return res.status(400).json({ error: "Survey already completed" });
+    )
+    if (done.rows.length) {
+      await client.query('ROLLBACK')
+      return res.status(409).json({ error: 'Survey already completed' })
+    }
 
-    // Mark as completed
-    await pool.query(
-      "INSERT INTO user_surveys (user_id, survey_id) VALUES ($1, $2)",
+    // Get reward
+    const s = await client.query('SELECT reward FROM surveys WHERE id=$1 AND is_active=TRUE', [surveyId])
+    if (!s.rows.length) {
+      await client.query('ROLLBACK')
+      return res.status(404).json({ error: 'Survey not found' })
+    }
+    const reward = Number(s.rows[0].reward) || 0
+
+    // Credit points + mark completion
+    await client.query('UPDATE users SET points = points + $1 WHERE id=$2', [reward, userId])
+    await client.query(
+      'INSERT INTO user_surveys (user_id, survey_id) VALUES ($1, $2)',
       [userId, surveyId]
-    );
+    )
 
-    // Add points
-    const survey = await pool.query("SELECT points FROM surveys WHERE id=$1", [surveyId]);
-    const points = survey.rows[0].points || 0;
-    await pool.query("UPDATE users SET points = points + $1 WHERE id=$2", [points, userId]);
+    // New balance
+    const nb = await client.query('SELECT points FROM users WHERE id=$1', [userId])
 
-    res.json({ message: "Survey completed!", pointsAdded: points });
+    await client.query('COMMIT')
+    res.json({ message: 'Survey completed', reward, newBalance: nb.rows[0].points })
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to complete survey" });
+    await client.query('ROLLBACK')
+    next(err)
+  } finally {
+    client.release()
   }
-};
+}

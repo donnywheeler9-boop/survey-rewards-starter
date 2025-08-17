@@ -1,12 +1,8 @@
-import express from "express";
-import { requestWithdraw, getWithdraws } from "../controllers/withdrawController.js";
+import { Router } from 'express'
+import { withdraw, getPoints } from '../controllers/withdrawController.js'
+import { auth } from '../middleware/auth.js'
 
-const router = express.Router();
-
-// Request a withdraw
-router.post("/request", requestWithdraw);
-
-// Get all withdraws for a user
-router.get("/:userId", getWithdraws);
-
-export default router;
+const router = Router()
+router.get('/user/points', auth, getPoints)
+router.post('/', auth, withdraw)
+export default router

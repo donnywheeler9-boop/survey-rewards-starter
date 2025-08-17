@@ -1,40 +1,59 @@
-import pool from "../config/db.js";
+// server/src/controllers/withdrawController.js
+import { pool } from '../config/db.js'
 
-// Request withdrawal
-export const requestWithdraw = async (req, res) => {
-  const { userId, amount } = req.body;
-
+export async function withdraw(req, res, next) {
+  const client = await pool.connect()
   try {
-    const user = await pool.query("SELECT points FROM users WHERE id=$1", [userId]);
-    if (!user.rows.length) return res.status(400).json({ error: "User not found" });
+    const userId = req.user?.id
+    const { amount } = req.body
+    const amt = Number(amount)
 
-    if (user.rows[0].points < amount)
-      return res.status(400).json({ error: "Insufficient points" });
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' })
+    if (!Number.isFinite(amt) || amt <= 0) {
+      return res.status(400).json({ error: 'Invalid amount' })
+    }
 
-    // Deduct points
-    await pool.query("UPDATE users SET points = points - $1 WHERE id=$2", [amount, userId]);
+    await client.query('BEGIN')
 
-    // Record withdraw request
-    await pool.query(
-      "INSERT INTO withdraws (user_id, amount) VALUES ($1, $2)",
-      [userId, amount]
-    );
+    const bal = await client.query('SELECT points FROM users WHERE id=$1 FOR UPDATE', [userId])
+    if (!bal.rows.length) {
+      await client.query('ROLLBACK')
+      return res.status(404).json({ error: 'User not found' })
+    }
 
-    res.json({ message: "Withdraw request successful" });
+    const current = bal.rows[0].points
+    if (current < amt) {
+      await client.query('ROLLBACK')
+      return res.status(400).json({ error: 'Insufficient points' })
+    }
+
+    const newBalance = current - amt
+    await client.query('UPDATE users SET points=$1 WHERE id=$2', [newBalance, userId])
+    await client.query(
+      'INSERT INTO withdraw_requests(user_id, amount, status) VALUES($1,$2,$3)',
+      [userId, amt, 'pending']
+    )
+
+    await client.query('COMMIT')
+    return res.json({ message: 'Withdraw request submitted', newBalance })
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Withdraw request failed" });
+    await client.query('ROLLBACK')
+    return next(err)
+  } finally {
+    client.release()
   }
-};
+}
 
-// Get all withdraws for a user
-export const getWithdraws = async (req, res) => {
-  const userId = req.params.userId;
+export async function getPoints(req, res, next) {
   try {
-    const result = await pool.query("SELECT * FROM withdraws WHERE user_id=$1", [userId]);
-    res.json(result.rows);
+    const userId = req.user?.id
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' })
+
+    const { rows } = await pool.query('SELECT points FROM users WHERE id=$1', [userId])
+    if (!rows.length) return res.status(404).json({ error: 'User not found' })
+
+    return res.json({ points: rows[0].points })
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch withdraws" });
+    return next(err)
   }
-};
+}
