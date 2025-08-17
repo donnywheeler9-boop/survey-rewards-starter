@@ -1,6 +1,10 @@
 // client/src/pages/Profile.jsx
 import React, { useEffect, useState } from 'react'
 import api from '../api'
+import {
+  User, Mail, Globe,
+  Wallet, History, BarChart3, ClipboardList
+} from 'lucide-react'   // ✅ modern icons
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState('account')
@@ -12,7 +16,6 @@ export default function Profile() {
     try {
       setLoading(true)
       setError('')
-      // NOTE: baseURL already includes /api → so just /user/profile
       const res = await api.get('/user/profile')
       setProfileData(res.data)
     } catch (err) {
@@ -32,20 +35,49 @@ export default function Profile() {
     switch (activeTab) {
       case 'account':
         return (
-          <div className="space-y-1">
-            <p><strong>Name:</strong> {profileData?.user?.name ?? '-'}</p>
-            <p><strong>Email:</strong> {profileData?.user?.email ?? '-'}</p>
-            <p><strong>IP Address:</strong> {profileData?.user?.ip_address ?? '—'}</p>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4 text-purple-400" />
+              <span><strong>Name:</strong> {profileData?.user?.name ?? '-'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-purple-400" />
+              <span><strong>Email:</strong> {profileData?.user?.email ?? '-'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 text-purple-400" />
+              <span><strong>IP Address:</strong> {profileData?.user?.ip_address ?? '—'}</span>
+            </div>
           </div>
         )
       case 'withdraw-history':
-        return <div>Withdraw history will be here.</div>
+        return (
+          <div className="flex items-center gap-2 text-gray-300">
+            <History className="h-4 w-4 text-green-400" />
+            <span>Withdraw history will be here.</span>
+          </div>
+        )
       case 'earning-history':
-        return <div>Earning history will be here.</div>
+        return (
+          <div className="flex items-center gap-2 text-gray-300">
+            <BarChart3 className="h-4 w-4 text-yellow-400" />
+            <span>Earning history will be here.</span>
+          </div>
+        )
       case 'total-surveys':
-        return <div>Total completed surveys: {profileData?.totalSurveys ?? 0}</div>
+        return (
+          <div className="flex items-center gap-2 text-gray-300">
+            <ClipboardList className="h-4 w-4 text-blue-400" />
+            <span>Total completed surveys: {profileData?.totalSurveys ?? 0}</span>
+          </div>
+        )
       case 'current-balance':
-        return <div>Current Balance: {profileData?.currentBalance ?? 0}</div>
+        return (
+          <div className="flex items-center gap-2 text-gray-300">
+            <Wallet className="h-4 w-4 text-purple-400" />
+            <span>Current Balance: {profileData?.currentBalance ?? 0}</span>
+          </div>
+        )
       default:
         return null
     }

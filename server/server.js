@@ -10,6 +10,10 @@ import userRoutes from './src/routes/user.js'
 import withdrawRoutes from './src/routes/withdraw.js' // if you have it
 
 const app = express()
+
+// ✅ trust proxy so req.ip works behind Codespaces/Proxy
+app.set('trust proxy', true)
+
 app.use(cors())
 app.use(express.json())
 
