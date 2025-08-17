@@ -60,22 +60,22 @@ export default function Landing() {
             <div className="flex-1 grid md:grid-cols-1 gap-6 mt-10 md:mt-0">
               <FadeInSection delay={0.2}>
                 <div className="bg-white/20 backdrop-blur-lg p-6 rounded-3xl shadow-lg text-white font-medium text-base md:text-lg">
-                  • Secure authentication (JWT)
+                  • Get paid in under 10 minutes
                 </div>
               </FadeInSection>
               <FadeInSection delay={0.4}>
                 <div className="bg-white/20 backdrop-blur-lg p-6 rounded-3xl shadow-lg text-white font-medium text-base md:text-lg">
-                  • Real-time points balance
+                  • Highest survey completion rates
                 </div>
               </FadeInSection>
               <FadeInSection delay={0.6}>
                 <div className="bg-white/20 backdrop-blur-lg p-6 rounded-3xl shadow-lg text-white font-medium text-base md:text-lg">
-                  • Simple withdraw requests
+                  • Works for everyone
                 </div>
               </FadeInSection>
               <FadeInSection delay={0.8}>
                 <div className="bg-white/20 backdrop-blur-lg p-6 rounded-3xl shadow-lg text-white font-medium text-base md:text-lg">
-                  • Neon/Postgres backend API
+                  • Less frustration
                 </div>
               </FadeInSection>
             </div>
