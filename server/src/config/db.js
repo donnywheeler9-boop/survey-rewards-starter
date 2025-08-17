@@ -1,6 +1,6 @@
 // server/src/config/db.js
 import dotenv from 'dotenv'
-dotenv.config() // <- ensure .env is loaded before reading env vars
+dotenv.config()
 
 import { Pool } from 'pg'
 

@@ -1,32 +1,26 @@
-import express from "express";
-import dotenv from "dotenv";
-import cors from "cors";
-import authRoutes from "./src/routes/auth.js"; // Import the auth routes
-import surveyRoutes from "./src/routes/surveys.js";
-import withdrawRoutes from "./src/routes/withdraw.js";
+// server/server.js
+import express from 'express'
+import cors from 'cors'
+import dotenv from 'dotenv'
+dotenv.config()
 
-dotenv.config();
+import authRoutes from './src/routes/auth.js'         // already in your repo
+import surveyRoutes from './src/routes/surveys.js'
+import userRoutes from './src/routes/user.js'
+import withdrawRoutes from './src/routes/withdraw.js' // if you have it
 
-const app = express();
+const app = express()
+app.use(cors())
+app.use(express.json())
 
-app.use(cors());
-app.use(express.json());
+// health
+app.get('/api/health', (req, res) => res.json({ ok: true }))
 
-// Use the auth routes at /api/auth
-app.use("/api/auth", authRoutes);
+// mount
+app.use('/api/auth', authRoutes)
+app.use('/api/user', userRoutes)
+app.use('/api/surveys', surveyRoutes)
+app.use('/api/withdraw', withdrawRoutes) // optional, if exists
 
-// Use other routes for surveys and withdrawals
-app.use("/api/surveys", surveyRoutes);
-app.use("/api/withdraw", withdrawRoutes);
-
-// Default route
-app.get("/", (req, res) => res.send("Server is running!"));
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: "Something went wrong!" });
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+const PORT = process.env.PORT || 5000
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
