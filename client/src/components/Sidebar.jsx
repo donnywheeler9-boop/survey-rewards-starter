@@ -1,34 +1,56 @@
-import React from 'react'
-import { NavLink } from 'react-router-dom'
+// client/src/components/Sidebar.jsx
+import React from "react";
+import { NavLink } from "react-router-dom";
+import {
+  LayoutDashboard,
+  User,
+  ClipboardList,
+  Wallet,
+} from "lucide-react"; // <-- modern eye-catching icons
 
-const items = [
-  { to: '/dashboard', label: 'Dashboard' },
-  { to: '/profile',   label: 'Profile'   },
-  { to: '/surveys',   label: 'Survey'    },
-  { to: '/withdraw',  label: 'Withdraw'  },
-]
+const navItems = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/profile", label: "Profile", icon: User },
+  { to: "/surveys", label: "Survey", icon: ClipboardList },
+  { to: "/withdraw", label: "Withdraw", icon: Wallet },
+];
+
+function Item({ to, label, icon: Icon }) {
+  return (
+    <NavLink
+      to={to}
+      className={({ isActive }) => [
+        "w-full flex items-center gap-3 rounded-xl px-4 py-2 font-semibold transition-all outline-none",
+        "focus-visible:ring-2 focus-visible:ring-offset-0",
+        isActive
+          ? "bg-purple-600 text-white shadow ring-1 ring-purple-400/60"
+          : "text-gray-200 hover:bg-white/10 ring-1 ring-white/10",
+      ].join(" ")}
+    >
+      <Icon className="h-5 w-5" />
+      <span>{label}</span>
+    </NavLink>
+  );
+}
 
 export default function Sidebar() {
   return (
-    <aside className="w-56 shrink-0">
-      <div className="sticky top-16 bg-gray-900/90 border border-white/10 rounded-2xl p-3">
-        <nav className="flex flex-col gap-2">
-          {items.map(it => (
-            <NavLink
-              key={it.to}
-              to={it.to}
-              className={({ isActive }) =>
-                `px-4 py-2 rounded-lg transition
-                ${isActive
-                  ? 'bg-purple-600/20 border border-purple-500 text-white'
-                  : 'text-gray-300 hover:bg-white/5'}`
-              }
-            >
-              {it.label}
-            </NavLink>
-          ))}
-        </nav>
-      </div>
+    <aside className="w-64">
+      <nav className="grid gap-2">
+        {navItems.map((it) => (
+          <Item key={it.to} {...it} />
+        ))}
+      </nav>
     </aside>
-  )
+  );
 }
+
+/*
+USAGE:
+1. Install Lucide React:
+   npm install lucide-react
+
+2. Replace your Sidebar.jsx with this code.
+
+3. Done — modern, sharp Lucide icons will appear beside each menu item.
+*/

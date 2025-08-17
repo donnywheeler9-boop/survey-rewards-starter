@@ -8,6 +8,7 @@ export default function Landing() {
   return (
     // Navbar fixed থাকলে কনটেন্ট ঢেকে না ফেলতে top padding + footer নিচে রাখতে flex-col
     <div className="min-h-screen flex flex-col bg-gray-900 text-gray-100 pt-20 md:pt-24">
+      
       {/* ===== Main (fills remaining height) ===== */}
       <main className="flex-1">
         {/* Hero Section */}
